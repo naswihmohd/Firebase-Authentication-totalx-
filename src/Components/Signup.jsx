@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { db } from '../firebase/config';
@@ -9,6 +9,7 @@ function Signup() {
 
     const uid = localStorage.getItem('uid')
     const navigate = useNavigate()
+    const [loading, setLoading] = useState(false)
 
     console.log(uid)
 
@@ -30,7 +31,7 @@ function Signup() {
     });
 
     const handleSubmit = async (values) => {
-
+        setLoading(true)
         if (uid) {
             const userRef = doc(db, 'users', uid)
             await updateDoc(userRef, values).then(() => {
@@ -42,7 +43,6 @@ function Signup() {
         }
 
     }
-
 
     return (
         <div className="m-auto p-10 min-h-screen">
@@ -163,7 +163,7 @@ function Signup() {
                                 </div>
                                 <p className='mt-3 text-sm'><span className='pe-2'><input type="checkbox" className="checkbox-xs" required /></span>I agree to all the <span className='text-red-600'>Terms</span> and <span className='text-red-600'>Privacy Policies</span></p>
 
-                                <button type='submit' disabled={isSubmitting} className='btn bg-blue-700 w-full mt-5 text-white hover:bg-blue-900' >Create account</button>
+                                <button type='submit' disabled={isSubmitting} className='btn bg-blue-700 w-full mt-5 text-white hover:bg-blue-900' >{loading && <span className="loading loading-dots loading-lg" />}Create account</button>
                             </Form>
                         )}
                     </Formik>

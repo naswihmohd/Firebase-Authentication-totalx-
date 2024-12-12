@@ -4,12 +4,12 @@ import { auth } from '../firebase/config'
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 import { Outlet, Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import {update} from '../features/authSlice'
+import { update } from '../features/authSlice'
 
 function Home() {
 
     const navigate = useNavigate()
-    const authUser = useSelector((state)=>state.auth)
+    const authUser = useSelector((state) => state.auth)
     const dispatch = useDispatch()
 
     useEffect(() => {
@@ -32,16 +32,20 @@ function Home() {
 
     return (
         <div className='flex items-center justify-center h-screen'>
-            <div>
-                <h1 className='pb-3 font-bold text-2xl text-center'>7025133315</h1>
-                {authUser ? (
-                    <button onClick={handleLogout} className='btn btn-primary w-96'>Logout</button>
-                ) : (
-                    <Link to={'/login'} ><button className='btn btn-success w-96'>Login</button></Link>
-                )}
 
-                <hr className='w-96 mt-5 ' />
-            </div>
+            {authUser ? (
+                <div>
+                    <h1 className='pb-3 font-bold text-2xl text-center'>Account Logged</h1>
+                    <button onClick={handleLogout} className='btn btn-primary w-96'>Logout</button>
+                    <hr className='w-96 mt-5 ' />
+                </div>
+            ) :
+                <div>
+                    <h1 className='pb-3 font-bold text-2xl text-center'>Go to Login</h1>
+                    <button onClick={handleLogout} className='btn bg-red-700 w-96 text-white hover:bg-red-900'>Login</button>
+                    <hr className='w-96 mt-5 ' />
+                </div>
+            }
             <Outlet />
         </div>
     )

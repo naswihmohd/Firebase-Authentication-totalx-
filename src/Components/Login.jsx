@@ -2,15 +2,17 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { auth } from '../firebase/config'
 import { signInWithPhoneNumber, RecaptchaVerifier } from 'firebase/auth';
-import { useDispatch } from 'react-redux';
+import { useDispatch} from 'react-redux';
 import { add } from '../features/confirmationSlice';
 import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
 
 
 function Login() {
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
 
   const validationSchema = Yup.object({
     phoneNumber: Yup.string()
@@ -33,7 +35,7 @@ function Login() {
   };
 
   const handleSubmit = async ({ phoneNumber }) => {
-
+    setLoading(true)
     try {
       await initializeRecaptcha();
       const appVerifier = window.recaptchaVerifier;
@@ -87,7 +89,7 @@ function Login() {
                   />
                 </div>
                 <div className='py-3' id='recaptcha-container'></div>
-                <button disabled={isSubmitting} type='submit' className='btn bg-blue-700 w-full text-white hover:bg-blue-900' >Get OTP</button>
+                <button disabled={isSubmitting} type='submit' className='btn bg-blue-700 w-full text-white hover:bg-blue-900' >{loading && <span className="loading loading-dots loading-lg" />}Get OTP</button>
               </Form>
             )}
           </Formik>

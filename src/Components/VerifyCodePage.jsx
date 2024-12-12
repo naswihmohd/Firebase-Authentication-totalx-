@@ -1,22 +1,24 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { IoIosArrowBack } from "react-icons/io";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { db } from '../firebase/config';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { setUid } from '../features/userSlice';
 
 
 function VerifyCodePage() {
 
     const confirmation = useSelector((state) => state.confirmation)
-    const dispatch = useDispatch()
-
-    console.log("this" + confirmation)
-
     const navigate = useNavigate()
+    const [loading, setLoading] = useState(false)
+
+    useEffect(() => {
+        if (!confirmation) {
+            navigate('/login')
+        }
+    }, [])
 
     const validationSchema = Yup.object({
         otp: Yup.string()
@@ -25,7 +27,7 @@ function VerifyCodePage() {
     });
 
     const handleSubmit = ({ otp }) => {
-
+        setLoading(true)
         try {
             if (confirmation) {
                 confirmation.confirm(otp).then(async (userCredential) => {
@@ -104,7 +106,7 @@ function VerifyCodePage() {
                                     </div>
 
                                     <p className=' font-sans text-sm pt-3'>Didn't receive a code? <span className='text-error hover:link'>Resend</span></p>
-                                    <button type='submit' disabled={isSubmitting} className='btn bg-blue-700 w-full mt-5 text-white hover:bg-blue-900' >Verify</button>
+                                    <button type='submit' disabled={isSubmitting} className='btn bg-blue-700 w-full mt-5 text-white hover:bg-blue-900' >{loading && <span className="loading loading-dots loading-lg" />}Verify</button>
                                 </Form>
                             )}
                         </Formik>
