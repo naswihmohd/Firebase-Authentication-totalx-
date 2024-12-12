@@ -4,12 +4,15 @@ import * as Yup from "yup";
 import { db } from '../firebase/config';
 import { doc, updateDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { showAlert } from '../features/alertSlice';
 
 function Signup() {
 
     const uid = localStorage.getItem('uid')
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
+    const dispatch = useDispatch()
 
     console.log(uid)
 
@@ -36,9 +39,21 @@ function Signup() {
             const userRef = doc(db, 'users', uid)
             await updateDoc(userRef, values).then(() => {
                 localStorage.removeItem('uid')
+                dispatch(
+                    showAlert({
+                        content: 'Registration successful. Your account has been logged in successfully.',
+                        styling: 'bg-green-600 text-white text-sm',
+                    })
+                );
                 navigate('/')
             })
         } else {
+            dispatch(
+                showAlert({
+                    content: 'Something went wrong. Please verify your phone number.',
+                    styling: 'bg-red-600 text-white text-sm',
+                })
+            );
             navigate('/login')
         }
 

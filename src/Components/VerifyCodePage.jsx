@@ -3,9 +3,10 @@ import { IoIosArrowBack } from "react-icons/io";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { db } from '../firebase/config';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { showAlert } from '../features/alertSlice';
 
 
 function VerifyCodePage() {
@@ -13,9 +14,16 @@ function VerifyCodePage() {
     const confirmation = useSelector((state) => state.confirmation)
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
+    const dispatch = useDispatch()
 
     useEffect(() => {
         if (!confirmation) {
+            dispatch(
+                showAlert({
+                    content: 'Error occurred. Reenter number for OTP.',
+                    styling: 'bg-red-600 text-white text-sm',
+                })
+            );
             navigate('/login')
         }
     }, [])
@@ -34,7 +42,7 @@ function VerifyCodePage() {
                     console.log(userCredential);
 
                     const user = userCredential.user
-                    const userRef = doc(db, 'users', user.uid); // Modular SDK
+                    const userRef = doc(db, 'users', user.uid); 
                     const userSnapshot = await getDoc(userRef);
 
                     if (!userSnapshot.exists()) {
@@ -42,23 +50,52 @@ function VerifyCodePage() {
                             uid: user.uid,
                         })
                         localStorage.setItem('uid', user.uid)
+                        dispatch(
+                            showAlert({
+                                content: 'OTP verification successful. Please register your account.',
+                                styling: 'bg-green-600 text-white text-sm',
+                            })
+                        );
                         navigate("/signup");
 
                     } else {
                         const data = userSnapshot.data()
                         if ("email" in data) {
+                            dispatch(
+                                showAlert({
+                                    content: 'Verification successful. Your account is logged in.',
+                                    styling: 'bg-green-600 text-white text-sm',
+                                })
+                            );
                             navigate("/");
                         } else {
                             localStorage.setItem('uid', data.uid)
+                            dispatch(
+                                showAlert({
+                                    content: 'OTP verification successful. Please register your account.',
+                                    styling: 'bg-green-600 text-white text-sm',
+                                })
+                            );
                             navigate("/signup");
                         }
                     }
 
                 }).catch((error) => {
                     if (error.code === 'auth/invalid-verification-code') {
-                        console.error('Invalid OTP. Please try again.');
+                        setLoading(false)
+                        dispatch(
+                            showAlert({
+                                content: 'Invalid OTP!. Please try again.',
+                                styling: 'bg-red-600 text-white text-sm',
+                            })
+                        );
                     } else {
-                        console.error('Error during OTP verification:', error.message);
+                        dispatch(
+                            showAlert({
+                                content: 'Error during OTP verification.',
+                                styling: 'bg-red-600 text-white text-sm',
+                            })
+                        );
                     }
                 })
             } else {
@@ -106,7 +143,7 @@ function VerifyCodePage() {
                                     </div>
 
                                     <p className=' font-sans text-sm pt-3'>Didn't receive a code? <span className='text-error hover:link'>Resend</span></p>
-                                    <button type='submit' disabled={isSubmitting} className='btn bg-blue-700 w-full mt-5 text-white hover:bg-blue-900' >{loading && <span className="loading loading-dots loading-lg" />}Verify</button>
+                                    <button type='submit' className='btn bg-blue-700 w-full mt-5 text-white hover:bg-blue-900' >{loading && <span className="loading loading-dots loading-lg" />}Verify</button>
                                 </Form>
                             )}
                         </Formik>

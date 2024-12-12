@@ -5,11 +5,13 @@ import Home from './Components/Home';
 import Login from './Components/Login';
 import Signup from './Components/Signup';
 import VerifyCodePage from './Components/VerifyCodePage';
+import Alert from './Components/Alert';
 
 
 function App() {
   return (
     <div>
+      <Alert />
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/login' element={<Login />} />

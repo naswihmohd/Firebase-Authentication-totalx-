@@ -2,10 +2,11 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { auth } from '../firebase/config'
 import { signInWithPhoneNumber, RecaptchaVerifier } from 'firebase/auth';
-import { useDispatch} from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { add } from '../features/confirmationSlice';
 import { useNavigate } from 'react-router-dom';
 import { useState } from "react";
+import { showAlert } from "../features/alertSlice";
 
 
 function Login() {
@@ -42,13 +43,23 @@ function Login() {
       const fullPhoneNumber = `+91${phoneNumber}`;
 
       signInWithPhoneNumber(auth, fullPhoneNumber, appVerifier).then((confirmation) => {
-        console.log("OTP sent successfully" + confirmation);
+        dispatch(
+          showAlert({
+            content: 'The OTP has been sent to your phone.',
+            styling: 'bg-yellow-600 text-white text-sm',
+          })
+        );
         dispatch(add(confirmation))
         navigate('/verify')
       })
 
     } catch (error) {
-      console.error("Error sending OTP:", error);
+      dispatch(
+        showAlert({
+          content: 'Error sending OTP',
+          styling: 'bg-red-600 text-white text-sm',
+        })
+      );
     }
   };
 
